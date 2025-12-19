@@ -7,6 +7,7 @@ type UrlParameters struct {
 	Name       string
 	Address    string
 	Role       string
+	QualificationCode string
 	Active     bool
 	GetPages   string
 	PageId     string
@@ -24,6 +25,9 @@ func (u UrlParameters) BuildUrlValues() url.Values {
 	}
 	if u.Role != "" {
 		values.Add("role", u.Role)
+	}
+	if u.QualificationCode != "" {
+		values.Add("qualification-code", u.QualificationCode)
 	}
 	if u.Active {
 		values.Add("active", "true")
@@ -47,6 +51,9 @@ func (u UrlParameters) Intersection(u_cur UrlParameters) UrlParameters {
 	if u_cur.Active {
 		u.Active = u_cur.Active
 	}
+	if u_cur.QualificationCode != "" {
+		u.QualificationCode = u_cur.QualificationCode
+	}
 	return u
 }
 
@@ -56,6 +63,9 @@ func (u UrlParameters) Union(u_cur UrlParameters) UrlParameters {
 	}
 	if u_cur.Address != "" {
 		u.Address = u.Address + "," + u_cur.Address
+	}
+	if u_cur.QualificationCode != "" {
+		u.QualificationCode = u.QualificationCode + "," + u_cur.QualificationCode
 	}
 	return u
 }
@@ -109,6 +119,24 @@ func (f FhirRole) Contains() struct {
 		Value: func(v string) UrlParameters {
 			return UrlParameters{
 				Role: v,
+			}
+		},
+	}
+}
+
+type FhirQualificationCode struct {
+	Value string
+}
+
+func (f FhirQualificationCode) Contains() struct {
+	Value func(v string) UrlParameters
+} {
+	return struct {
+		Value func(v string) UrlParameters
+	}{
+		Value: func(v string) UrlParameters {
+			return UrlParameters{
+				QualificationCode: v,
 			}
 		},
 	}
