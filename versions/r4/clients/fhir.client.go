@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	fhirInterface "github.com/Squirrel-Entreprise/go-fhir/interface"
@@ -33,6 +34,10 @@ func NewFhirClient(baseURL, apiKey, apiValue string) fhirInterface.IClient {
 			MaxIdleConns:        0,
 			MaxIdleConnsPerHost: 10,
 		},
+	}
+	// Append /v2 to the base URL for API v2
+	if !strings.HasSuffix(baseURL, "/v2") {
+		baseURL = baseURL + "/v2"
 	}
 	return &fhir{
 		Client:     *clientHttp,

@@ -29,13 +29,14 @@ func main() {
 	clientFhir.SetTimeout(30)
 
 	// Look for all physiotherapists
+	// In v2, use Practitioner resource with qualification-code parameter instead of PractitionerRole with role
 	bundleRes := clientFhir.
-		Search(fhirInterface.PRACTITIONER_ROLE).
-		Where(models_r4.PractitionerRole{}.
-			Role.
+		Search(fhirInterface.PRACTITIONER).
+		Where(models_r4.Practitioner{}.
+			QualificationCode.
 			Contains().
 			Value("70")).
-		And(models_r4.PractitionerRole{}.
+		And(models_r4.Practitioner{}.
 			Active.
 			IsActive()).
 		ReturnBundle().Execute()
@@ -70,7 +71,7 @@ func main() {
 				if postalCode == "" {
 					continue
 				}
-				if postalCode[:3] == "974" || postalCode[:3] == "976" {
+				if len(postalCode) >= 3 && (postalCode[:3] == "974" || postalCode[:3] == "976") {
 					isMayotteOrReunion = true
 					break
 				}
@@ -94,7 +95,7 @@ func main() {
 				Execute()
 
 			log.Print("Practitioner : \n\n", string(practitionerRaw.([]byte)), "\n\n")
-			log.Print("PractitionerRoleRaw : \n\n", string(practitionerRoleRaw.([]byte)), "\n\n")
+			log.Print("PractitionerRole : \n\n", string(practitionerRoleRaw.([]byte)), "\n\n")
 		}
 		if res.GetNextLink() == "" {
 			break

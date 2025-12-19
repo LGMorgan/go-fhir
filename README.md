@@ -23,9 +23,26 @@ clientFhir.SetEntryLimit(500)
 clientFhir.SetTimeout(30)
 ```
 
+### Searching Practitioner by Qualification Code and Active Status
+
+In v2, the focus has shifted to Practitioner resource with qualification-code parameter for searching by profession/specialty/category.
+
+```go
+bundleRes := clientFhir.
+    Search(fhirInterface.PRACTITIONER).
+    Where(models_r4.Practitioner{}.
+        QualificationCode.
+        Contains().
+        Value("70")).
+    And(models_r4.Practitioner{}.
+        Active.
+        IsActive()).
+    ReturnBundle().Execute()
+```
+
 ### Searching PractitionerRole by Role and Active Status
 
-Please note that we receive a prototype of the BundleResult struct, which is not yet complete, after executing the request.
+Alternatively, you can still search PractitionerRole for activity/situation data:
 
 ```go
 bundleRes := clientFhir.

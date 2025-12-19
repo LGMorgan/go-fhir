@@ -8,9 +8,11 @@ import (
 )
 
 type Practitioner struct {
-	Client  fhirInterface.IClient
-	Address fhirInterface.FhirAddress
-	Name    fhirInterface.FhirName
+	Client            fhirInterface.IClient
+	Address           fhirInterface.FhirAddress
+	Name              fhirInterface.FhirName
+	QualificationCode fhirInterface.FhirQualificationCode
+	Active            fhirInterface.FhirActive
 }
 
 func (p *Practitioner) ById(id string) fhirInterface.IParameters {
@@ -25,7 +27,7 @@ func (p *Practitioner) ById(id string) fhirInterface.IParameters {
 func (p *Practitioner) Where(option fhirInterface.UrlParameters) fhirInterface.IParameters {
 	fmt.Printf("\t\t--> Where()\n")
 
-	return &parameters_r4.OrganizationParameters{
+	return &parameters_r4.PractitionerParameters{
 		Client:     p.Client,
 		Uri:        "/Practitioner",
 		Parameters: option,
