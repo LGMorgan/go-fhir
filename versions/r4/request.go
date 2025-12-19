@@ -3,7 +3,7 @@ package r4
 import (
 	"fmt"
 
-	fhirInterface "github.com/Squirrel-Entreprise/go-fhir/interface"
+	fhirInterface "github.com/LGMorgan/go-fhir/interface"
 )
 
 type Request struct {

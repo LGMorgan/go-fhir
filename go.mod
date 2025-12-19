@@ -1,4 +1,4 @@
-module github.com/Squirrel-Entreprise/go-fhir
+module github.com/LGMorgan/go-fhir
 
 go 1.16
 

@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	fhirInterface "github.com/Squirrel-Entreprise/go-fhir/interface"
-	models_r4 "github.com/Squirrel-Entreprise/go-fhir/versions/r4/models"
+	fhirInterface "github.com/LGMorgan/go-fhir/interface"
+	models_r4 "github.com/LGMorgan/go-fhir/versions/r4/models"
 )
 
 const (

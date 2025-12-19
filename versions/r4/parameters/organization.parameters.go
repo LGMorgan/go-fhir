@@ -3,8 +3,8 @@ package parameters_r4
 import (
 	"fmt"
 
-	fhirInterface "github.com/Squirrel-Entreprise/go-fhir/interface"
-	"github.com/Squirrel-Entreprise/go-fhir/versions/r4"
+	fhirInterface "github.com/LGMorgan/go-fhir/interface"
+	"github.com/LGMorgan/go-fhir/versions/r4"
 )
 
 type OrganizationParameters struct {

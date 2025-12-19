@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"net/url"
 
-	fhirInterface "github.com/Squirrel-Entreprise/go-fhir/interface"
-	"github.com/Squirrel-Entreprise/go-fhir/versions/r4"
+	fhirInterface "github.com/LGMorgan/go-fhir/interface"
+	"github.com/LGMorgan/go-fhir/versions/r4"
 )
 
 /*
-	This BundleResult below is not complete
+This BundleResult below is not complete
 
-	TODO: Make it complete, and make it for the other models
-	TODO: Make a parser for the BundleResult (and the other models)
+TODO: Make it complete, and make it for the other models
+TODO: Make a parser for the BundleResult (and the other models)
 */
 type BundleResult struct {
 	Client fhirInterface.IClient

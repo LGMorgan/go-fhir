@@ -3,8 +3,8 @@ package models_r4
 import (
 	"fmt"
 
-	fhirInterface "github.com/Squirrel-Entreprise/go-fhir/interface"
-	parameters_r4 "github.com/Squirrel-Entreprise/go-fhir/versions/r4/parameters"
+	fhirInterface "github.com/LGMorgan/go-fhir/interface"
+	parameters_r4 "github.com/LGMorgan/go-fhir/versions/r4/parameters"
 )
 
 type PractitionerRole struct {

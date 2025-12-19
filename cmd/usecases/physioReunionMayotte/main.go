@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	fhir "github.com/Squirrel-Entreprise/go-fhir"
-	fhirInterface "github.com/Squirrel-Entreprise/go-fhir/interface"
-	models_r4 "github.com/Squirrel-Entreprise/go-fhir/versions/r4/models"
+	fhir "github.com/LGMorgan/go-fhir"
+	fhirInterface "github.com/LGMorgan/go-fhir/interface"
+	models_r4 "github.com/LGMorgan/go-fhir/versions/r4/models"
 	"github.com/joho/godotenv"
 )
 
