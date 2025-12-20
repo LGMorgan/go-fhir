@@ -41,18 +41,30 @@ func (b *BundleResult) MakeRequestNextPage() (fhirInterface.IRequest, error) {
 	if nextLink == "" {
 		return nil, fmt.Errorf("No next link found")
 	}
-	url, err := url.Parse(nextLink)
+	u, err := url.Parse(nextLink)
 	if err != nil {
 		return nil, err
 	}
-	urlParams := url.Query()
+	q := u.Query()
+	// Esante v2 may return next links like '/_page?id=...'
+	if u.Path == "/_page" && q.Get("id") != "" {
+		return &r4.Request{
+			Client: b.Client,
+			Uri:    "/_page",
+			Parameters: fhirInterface.UrlParameters{
+				Id: q.Get("id"),
+			},
+			TypeReturned: fhirInterface.BUNDLE,
+		}, nil
+	}
+	// Fallback to HAPI-style pagination with _getpages/_pageId/_bundletype
 	return &r4.Request{
 		Client: b.Client,
 		Uri:    "/",
 		Parameters: fhirInterface.UrlParameters{
-			GetPages:   urlParams.Get("_getpages"),
-			PageId:     urlParams.Get("_pageId"),
-			BundleType: urlParams.Get("_bundletype"),
+			GetPages:   q.Get("_getpages"),
+			PageId:     q.Get("_pageId"),
+			BundleType: q.Get("_bundletype"),
 		},
 		TypeReturned: fhirInterface.BUNDLE,
 	}, nil

@@ -29,6 +29,10 @@ func (u UrlParameters) BuildUrlValues() url.Values {
 	if u.QualificationCode != "" {
 		values.Add("qualification-code", u.QualificationCode)
 	}
+	// Support v2 pagination via /_page?id=...
+	if u.Id != "" {
+		values.Add("id", u.Id)
+	}
 	if u.Active {
 		values.Add("active", "true")
 	}
