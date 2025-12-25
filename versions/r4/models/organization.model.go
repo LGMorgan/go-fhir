@@ -31,3 +31,12 @@ func (org *Organization) Where(option fhirInterface.UrlParameters) fhirInterface
 		Parameters: option,
 	}
 }
+
+func (org *Organization) RevInclude(query string) fhirInterface.IParameters {
+	return &parameters_r4.OrganizationParameters{
+		Client: org.Client,
+		Uri:    "/Organization",
+		// Wrap the string in the UrlParameters struct
+		Parameters: fhirInterface.UrlParameters{RevInclude: query},
+	}
+}

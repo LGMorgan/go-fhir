@@ -35,3 +35,11 @@ func (pr *PractitionerRole) Where(option fhirInterface.UrlParameters) fhirInterf
 		Parameters: option,
 	}
 }
+
+func (pr *PractitionerRole) RevInclude(query string) fhirInterface.IParameters {
+	return &parameters_r4.PractitionerRoleParameters{
+		Client:     pr.Client,
+		Uri:        "/PractitionerRole",
+		Parameters: fhirInterface.UrlParameters{RevInclude: query},
+	}
+}
