@@ -4,4 +4,5 @@ type IEntry interface {
 	GetId() string
 	GetPractitionerReference() string
 	GetOrganizationReference() string
+	GetPractitionerRoleReference() string
 }

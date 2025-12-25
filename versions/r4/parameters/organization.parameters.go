@@ -48,3 +48,9 @@ func (org *OrganizationParameters) Or(option fhirInterface.UrlParameters) fhirIn
 	org.Parameters = org.Parameters.Union(option)
 	return org
 }
+
+func (org *OrganizationParameters) RevInclude(value string) fhirInterface.IParameters {
+	fmt.Println("\t\t--> RevInclude()")
+	org.Parameters.RevInclude = value
+	return org
+}

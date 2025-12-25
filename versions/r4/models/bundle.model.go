@@ -3,7 +3,6 @@ package models_r4
 import (
 	"fmt"
 	"net/url"
-	"strings"
 
 	fhirInterface "github.com/LGMorgan/go-fhir/interface"
 	"github.com/LGMorgan/go-fhir/versions/r4"
@@ -47,9 +46,8 @@ func (b *BundleResult) MakeRequestNextPage() (fhirInterface.IRequest, error) {
 		return nil, err
 	}
 	q := u.Query()
-	// Esante v2 returns next links ending with '/_page?id=...'
-	// When the next link is absolute, Path may include the base prefix (e.g. '/fhir/v2/_page').
-	if strings.HasSuffix(u.Path, "/_page") && q.Get("id") != "" {
+	// Esante v2 returns next links with an 'id' token; prefer this path regardless of prefix.
+	if q.Get("id") != "" {
 		return &r4.Request{
 			Client: b.Client,
 			Uri:    "/_page",
@@ -82,5 +80,6 @@ func (org *Bundle) ById(id string) fhirInterface.IParameters {
 }
 
 func (org *Bundle) Where(option fhirInterface.UrlParameters) fhirInterface.IParameters {
+	fmt.Printf("\t\t--> Where()\n")
 	return nil
 }

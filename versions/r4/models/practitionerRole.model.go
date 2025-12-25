@@ -8,12 +8,13 @@ import (
 )
 
 type PractitionerRole struct {
-	Client  fhirInterface.IClient
-	Id      string
-	Address fhirInterface.FhirAddress
-	Name    fhirInterface.FhirName
-	Role    fhirInterface.FhirRole
-	Active  fhirInterface.FhirActive
+	Client    fhirInterface.IClient
+	Id        string
+	Address   fhirInterface.FhirAddress
+	Name      fhirInterface.FhirName
+	Role      fhirInterface.FhirRole
+	Active    fhirInterface.FhirActive
+	Reference string
 }
 
 func (pr *PractitionerRole) ById(id string) fhirInterface.IParameters {

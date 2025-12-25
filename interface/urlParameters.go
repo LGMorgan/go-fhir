@@ -3,16 +3,17 @@ package fhirInterface
 import "net/url"
 
 type UrlParameters struct {
-	Id         string
-	Name       string
-	Address    string
-	Role       string
+	Id                string
+	Name              string
+	Address           string
+	Role              string
 	QualificationCode string
-	Active     bool
-	GetPages   string
-	PageId     string
-	BundleType string
-	Count      string
+	Active            bool
+	GetPages          string
+	PageId            string
+	BundleType        string
+	Count             string
+	RevInclude        string
 }
 
 func (u UrlParameters) BuildUrlValues() url.Values {
@@ -21,7 +22,7 @@ func (u UrlParameters) BuildUrlValues() url.Values {
 		values.Add("name", u.Name)
 	}
 	if u.Address != "" {
-		values.Add("address", u.Address)
+		values.Add("address-postalcode", u.Address)
 	}
 	if u.Role != "" {
 		values.Add("role", u.Role)
@@ -47,6 +48,9 @@ func (u UrlParameters) BuildUrlValues() url.Values {
 	}
 	if u.Count != "" {
 		values.Add("_count", u.Count)
+	}
+	if u.RevInclude != "" {
+		values.Add("_revinclude", u.RevInclude)
 	}
 	return values
 }

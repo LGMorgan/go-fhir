@@ -18,7 +18,7 @@ visible into `./cmd/usecases/physioReunionMayotte/main.go`
 
 ```go
 apiKey := os.Getenv("ESANTE_API_KEY")
-clientFhir := fhir.New("https://gateway.api.esante.gouv.fr/fhir", "ESANTE-API-KEY", apiKey, fhir.R4)
+clientFhir := fhir.New("https://gateway.api.esante.gouv.fr/fhir/v2", "ESANTE-API-KEY", apiKey, fhir.R4)
 clientFhir.SetEntryLimit(500)
 clientFhir.SetTimeout(30)
 ```

@@ -49,3 +49,9 @@ func (pr *PractitionerRoleParameters) Or(option fhirInterface.UrlParameters) fhi
 	pr.Parameters = pr.Parameters.Union(option)
 	return pr
 }
+
+func (pr *PractitionerRoleParameters) RevInclude(value string) fhirInterface.IParameters {
+	fmt.Println("\t\t--> RevInclude()")
+	pr.Parameters.RevInclude = value
+	return pr
+}
