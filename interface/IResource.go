@@ -13,4 +13,5 @@ const (
 type IResource interface {
 	ById(id string) IParameters
 	Where(option UrlParameters) IParameters
+	RevInclude(value string) IParameters
 }
