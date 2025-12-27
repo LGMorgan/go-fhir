@@ -16,10 +16,13 @@ type Practitioner struct {
 func (p *Practitioner) ById(id string) fhirInterface.IParameters {
 	//fmt.Printf("\t\t--> ById()\n")
 
+	// Use search on _id to allow combining with other parameters (e.g., qualification-code)
 	return &parameters_r4.PractitionerParameters{
-		Client:     p.Client,
-		Uri:        "/Practitioner",
-		Parameters: fhirInterface.UrlParameters{Id: id},
+		Client: p.Client,
+		Uri:    "/Practitioner",
+		Parameters: fhirInterface.UrlParameters{
+			SearchId: id,
+		},
 	}
 }
 

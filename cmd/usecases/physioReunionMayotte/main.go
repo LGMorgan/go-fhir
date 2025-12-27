@@ -31,7 +31,7 @@ func main() {
 	clientFhir := fhir.New("https://gateway.api.esante.gouv.fr/fhir/v2", "ESANTE-API-KEY", apiKey, fhir.R4)
 
 	// LIMIT 50
-	clientFhir.SetEntryLimit(50)
+	clientFhir.SetEntryLimit(10)
 	clientFhir.SetTimeout(30)
 
 	bundleRes := clientFhir.
@@ -101,10 +101,14 @@ func main() {
 				continue
 			}
 
-			// Check if the bundle has entries (filter matched)
+			// Accept either a Bundle (with entry) or a single Practitioner resource
 			entries, ok := bundle["entry"].([]interface{})
-			if !ok || len(entries) == 0 {
-				// No practitioner with code 70 found
+			if !ok {
+				if resType, ok := bundle["resourceType"].(string); ok && resType == "Practitioner" {
+					entries = []interface{}{bundle}
+				}
+			}
+			if len(entries) == 0 {
 				continue
 			}
 
@@ -362,56 +366,56 @@ func extractAddressesFromJson(jsonData []byte) ([]Address, error) {
 						a.Address = strings.TrimSpace(line[0].(string))
 					}
 				}
+				/*
+					var houseNumber, streetNameType, buildingNumberSuffix, streetNameBase, lieuDit string
 
-				var houseNumber, streetNameType, buildingNumberSuffix, streetNameBase, lieuDit string
-
-				// Extract _line extensions (structured components)
-				if line, ok := addrMap["_line"].([]interface{}); ok && len(line) > 0 {
-					if lineMap, ok := line[0].(map[string]interface{}); ok {
-						if ext, ok := lineMap["extension"].([]interface{}); ok {
-							for _, e := range ext {
-								if eMap, ok := e.(map[string]interface{}); ok {
-									if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber" {
-										if value, ok := eMap["valueString"].(string); ok {
-											houseNumber = strings.TrimSpace(value)
+					// Extract _line extensions (structured components)
+					if line, ok := addrMap["_line"].([]interface{}); ok && len(line) > 0 {
+						if lineMap, ok := line[0].(map[string]interface{}); ok {
+							if ext, ok := lineMap["extension"].([]interface{}); ok {
+								for _, e := range ext {
+									if eMap, ok := e.(map[string]interface{}); ok {
+										if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber" {
+											if value, ok := eMap["valueString"].(string); ok {
+												houseNumber = strings.TrimSpace(value)
+											}
 										}
-									}
-									if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetNameType" {
-										if value, ok := eMap["valueString"].(string); ok {
-											streetNameType = strings.TrimSpace(value)
+										if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetNameType" {
+											if value, ok := eMap["valueString"].(string); ok {
+												streetNameType = strings.TrimSpace(value)
+											}
 										}
-									}
-									if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-buildingNumberSuffix" {
-										if value, ok := eMap["valueString"].(string); ok {
-											buildingNumberSuffix = strings.TrimSpace(value)
+										if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-buildingNumberSuffix" {
+											if value, ok := eMap["valueString"].(string); ok {
+												buildingNumberSuffix = strings.TrimSpace(value)
+											}
 										}
-									}
-									if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetNameBase" {
-										if value, ok := eMap["valueString"].(string); ok {
-											streetNameBase = strings.TrimSpace(value)
+										if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetNameBase" {
+											if value, ok := eMap["valueString"].(string); ok {
+												streetNameBase = strings.TrimSpace(value)
+											}
 										}
-									}
-									if url, ok := eMap["url"].(string); ok && url == "https://interop.esante.gouv.fr/ig/fhir/annuaire/StructureDefinition/as-ext-lieu-dit" {
-										if value, ok := eMap["valueString"].(string); ok {
-											lieuDit = strings.TrimSpace(value)
+										if url, ok := eMap["url"].(string); ok && url == "https://interop.esante.gouv.fr/ig/fhir/annuaire/StructureDefinition/as-ext-lieu-dit" {
+											if value, ok := eMap["valueString"].(string); ok {
+												lieuDit = strings.TrimSpace(value)
+											}
 										}
-									}
-									if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-postBox" {
-										if value, ok := eMap["valueString"].(string); ok {
-											a.City = strings.TrimSpace(value)
+										if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-postBox" {
+											if value, ok := eMap["valueString"].(string); ok {
+												a.City = strings.TrimSpace(value)
+											}
 										}
-									}
-									if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/us/vr-common-library/StructureDefinition/CityCode" {
-										if value, ok := eMap["valueString"].(string); ok {
-											a.City = strings.TrimSpace(value)
+										if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/us/vr-common-library/StructureDefinition/CityCode" {
+											if value, ok := eMap["valueString"].(string); ok {
+												a.City = strings.TrimSpace(value)
+											}
 										}
 									}
 								}
 							}
 						}
 					}
-				}
-
+				*/
 				if a.City == "" {
 					if city, ok := addrMap["city"].(string); ok {
 						r, err := regexp.Compile(`\d{5}\s+(.*)`)

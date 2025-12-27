@@ -3,7 +3,8 @@ package fhirInterface
 import "net/url"
 
 type UrlParameters struct {
-	Id                string
+	Id                string // pagination token (esante v2 uses `id`)
+	SearchId          string // resource id search uses `_id`
 	Name              string
 	Address           string
 	Role              string
@@ -32,8 +33,11 @@ func (u UrlParameters) BuildUrlValues() url.Values {
 	}
 	// Support v2 pagination via /_page?id=...
 	if u.Id != "" {
-		// FHIR search uses `_id` for resource ids
-		values.Add("_id", u.Id)
+		values.Add("id", u.Id)
+	}
+	// Resource id search uses `_id`
+	if u.SearchId != "" {
+		values.Add("_id", u.SearchId)
 	}
 	if u.Active {
 		values.Add("active", "true")
