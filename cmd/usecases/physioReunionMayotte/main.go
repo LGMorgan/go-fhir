@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -72,6 +73,7 @@ func main() {
 
 			// Get the organization info
 			org := orgMap[orgId]
+
 			if org == nil {
 				log.Printf("⚠️  Organization %s not found for PractitionerRole %s\n", orgId, prEntry.GetId())
 				continue
@@ -80,33 +82,31 @@ func main() {
 			//log.Printf("\n✅ Found: %s works at %s\n", practitionerId, org.Resource.Name)
 			//log.Printf("   Address: %v\n", org.Resource.Address)
 
-			// Step 3: Fetch Practitioner to check qualification-code = 70
+			// Step 3: Fetch Practitioner ID with qualification-code = 70
 			practitionerRaw := clientFhir.
 				Search(fhirInterface.PRACTITIONER).
 				ById(practitionerId).
+				And(models_r4.Practitioner{}.QualificationCode.Contains().Value("70")).
 				ReturnRaw().
 				Execute()
 
-			var practitioner map[string]interface{}
-			err := json.Unmarshal(practitionerRaw.([]byte), &practitioner)
-			if err != nil {
-				log.Printf("❌ Error parsing Practitioner %s: %v\n", practitionerId, err)
+			if practitionerRaw == nil {
 				continue
 			}
 
-			// Check qualification array for code = "70"
-			if !hasQualificationCode(practitioner, "70") {
-				//log.Printf("❌ %s is NOT a physiotherapist (no code 70)\n", practitionerId)
+			var bundle map[string]interface{}
+			err := json.Unmarshal(practitionerRaw.([]byte), &bundle)
+			if err != nil {
+				log.Printf("❌ Error parsing response for %s: %v\n", practitionerId, err)
 				continue
 			}
-			/*
-				log.Printf("✅ %s is a physiotherapist (code 70)\n", practitionerId)
-				log.Printf("   PractitionerRole ID: %s\n", prEntry.GetId())
-				log.Printf("   Organization: %s (%s)\n", org.Resource.Name, orgId)
-				if len(org.Resource.Address) > 0 {
-					addr := org.Resource.Address[0]
-					log.Printf("   Location: %s %s %s\n", addr.PostalCode, addr.City, strings.Join(addr.Line, ", "))
-				}*/
+
+			// Check if the bundle has entries (filter matched)
+			entries, ok := bundle["entry"].([]interface{})
+			if !ok || len(entries) == 0 {
+				// No practitioner with code 70 found
+				continue
+			}
 
 			// Extract data from practitioner and organization
 			lastname := ToTile(extractLastnameFromJson(practitionerRaw.([]byte)))
@@ -114,6 +114,7 @@ func main() {
 			rpps := extractRppsFromJson(practitionerRaw.([]byte))
 			email := strings.ToLower(extractEmailFromJson(practitionerRaw.([]byte)))
 			phone := strings.ReplaceAll(extractPhoneFromJson(practitionerRaw.([]byte)), " ", "")
+
 			address := extractAddressFromOrganization(org)
 
 			log.Printf("   Name: %s %s\n", firstname, lastname)
@@ -137,32 +138,6 @@ func main() {
 		}
 		res = clientFhir.LoadPage().Next(res).Execute().(*models_r4.BundleResult)
 	}
-}
-
-func hasQualificationCode(practitioner map[string]interface{}, targetCode string) bool {
-	if qual, ok := practitioner["qualification"].([]interface{}); ok {
-		for _, q := range qual {
-			if qMap, ok := q.(map[string]interface{}); ok {
-				if codeObj, ok := qMap["code"].(map[string]interface{}); ok {
-					if coding, ok := codeObj["coding"].([]interface{}); ok {
-						for _, code := range coding {
-							if cMap, ok := code.(map[string]interface{}); ok {
-								// Check TRE_G15-ProfessionSante system for profession code
-								if system, ok := cMap["system"].(string); ok {
-									if strings.Contains(system, "TRE-G15-ProfessionSante") {
-										if codeVal, ok := cMap["code"].(string); ok && codeVal == targetCode {
-											return true
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	return false
 }
 
 func extractRppsFromJson(jsonData []byte) string {
@@ -344,23 +319,126 @@ func ToTile(s string) string {
 }
 
 func extractAddressFromOrganization(org *models_r4.Entry) *Address {
-	if org == nil || len(org.Resource.Address) == 0 {
+	if org == nil {
 		return nil
 	}
 
-	addr := org.Resource.Address[0]
-	a := &Address{
-		Address: strings.Join(addr.Line, " "),
-		City:    addr.City,
+	// Marshal the resource back to JSON to preserve _line extensions
+	jsonData, err := json.Marshal(org.Resource)
+	if err != nil {
+		log.Println("Error marshaling organization resource:", err)
+		return nil
 	}
 
-	// Convert postal code to int and get department
-	if code, err := strconv.Atoi(addr.PostalCode); err == nil {
-		a.Zipcode = code
-		a.Department = department(code)
+	// Use the robust JSON parser
+	addresses, err := extractAddressesFromJson(jsonData)
+	if err != nil {
+		return nil
 	}
 
-	return a
+	if len(addresses) == 0 {
+		return nil
+	}
+
+	return &addresses[0]
+}
+
+func extractAddressesFromJson(jsonData []byte) ([]Address, error) {
+	var result []Address
+	var obj map[string]interface{}
+
+	err := json.Unmarshal(jsonData, &obj)
+	if err != nil {
+		return nil, err
+	}
+
+	if addresses, ok := obj["address"].([]interface{}); ok {
+		for _, addr := range addresses {
+			var a Address
+			if addrMap, ok := addr.(map[string]interface{}); ok {
+				// Extract line (pre-formatted address)
+				if line, ok := addrMap["line"].([]interface{}); ok && len(line) > 0 {
+					if line[0] != nil {
+						a.Address = strings.TrimSpace(line[0].(string))
+					}
+				}
+
+				var houseNumber, streetNameType, buildingNumberSuffix, streetNameBase, lieuDit string
+
+				// Extract _line extensions (structured components)
+				if line, ok := addrMap["_line"].([]interface{}); ok && len(line) > 0 {
+					if lineMap, ok := line[0].(map[string]interface{}); ok {
+						if ext, ok := lineMap["extension"].([]interface{}); ok {
+							for _, e := range ext {
+								if eMap, ok := e.(map[string]interface{}); ok {
+									if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber" {
+										if value, ok := eMap["valueString"].(string); ok {
+											houseNumber = strings.TrimSpace(value)
+										}
+									}
+									if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetNameType" {
+										if value, ok := eMap["valueString"].(string); ok {
+											streetNameType = strings.TrimSpace(value)
+										}
+									}
+									if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-buildingNumberSuffix" {
+										if value, ok := eMap["valueString"].(string); ok {
+											buildingNumberSuffix = strings.TrimSpace(value)
+										}
+									}
+									if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetNameBase" {
+										if value, ok := eMap["valueString"].(string); ok {
+											streetNameBase = strings.TrimSpace(value)
+										}
+									}
+									if url, ok := eMap["url"].(string); ok && url == "https://interop.esante.gouv.fr/ig/fhir/annuaire/StructureDefinition/as-ext-lieu-dit" {
+										if value, ok := eMap["valueString"].(string); ok {
+											lieuDit = strings.TrimSpace(value)
+										}
+									}
+									if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-postBox" {
+										if value, ok := eMap["valueString"].(string); ok {
+											a.City = strings.TrimSpace(value)
+										}
+									}
+									if url, ok := eMap["url"].(string); ok && url == "http://hl7.org/fhir/us/vr-common-library/StructureDefinition/CityCode" {
+										if value, ok := eMap["valueString"].(string); ok {
+											a.City = strings.TrimSpace(value)
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+
+				if a.City == "" {
+					if city, ok := addrMap["city"].(string); ok {
+						r, err := regexp.Compile(`\d{5}\s+(.*)`)
+						if err != nil {
+							return nil, err
+						}
+						match := r.FindStringSubmatch(city)
+						if len(match) > 1 {
+							a.City = strings.TrimSpace(match[1])
+						} else {
+							a.City = strings.TrimSpace(city)
+						}
+					}
+				}
+				if postalCode, ok := addrMap["postalCode"].(string); ok {
+					if code, err := strconv.Atoi(postalCode); err == nil {
+						a.Zipcode = code
+						a.Department = department(code)
+					}
+				}
+			}
+
+			result = append(result, a)
+		}
+	}
+
+	return result, nil
 }
 
 type Address struct {

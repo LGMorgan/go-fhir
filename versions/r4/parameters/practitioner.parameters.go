@@ -1,8 +1,6 @@
 package parameters_r4
 
 import (
-	"fmt"
-
 	fhirInterface "github.com/LGMorgan/go-fhir/interface"
 	"github.com/LGMorgan/go-fhir/versions/r4"
 )
@@ -14,7 +12,7 @@ type PractitionerParameters struct {
 }
 
 func (prac *PractitionerParameters) ReturnBundle() fhirInterface.IRequest {
-	fmt.Println("\t\t\t--> ReturnBundle()")
+	//fmt.Println("\t\t\t--> ReturnBundle()")
 	return &r4.Request{
 		Client:       prac.Client,
 		Uri:          prac.Uri,
@@ -28,7 +26,7 @@ func (prac *PractitionerParameters) Return() fhirInterface.IRequest {
 }
 
 func (p *PractitionerParameters) ReturnRaw() fhirInterface.IRequest {
-	fmt.Println("\t\t\t--> ReturnRaw()")
+	//fmt.Println("\t\t\t--> ReturnRaw()")
 	return &r4.Request{
 		Client:       p.Client,
 		Uri:          p.Uri,
@@ -38,19 +36,19 @@ func (p *PractitionerParameters) ReturnRaw() fhirInterface.IRequest {
 }
 
 func (prac *PractitionerParameters) And(option fhirInterface.UrlParameters) fhirInterface.IParameters {
-	fmt.Println("\t\t\t--> And()")
+	//fmt.Println("\t\t\t--> And()")
 	prac.Parameters = prac.Parameters.Intersection(option)
 	return prac
 }
 
 func (prac *PractitionerParameters) Or(option fhirInterface.UrlParameters) fhirInterface.IParameters {
-	fmt.Println("\t\t\t--> Or()")
+	//fmt.Println("\t\t\t--> Or()")
 	prac.Parameters = prac.Parameters.Union(option)
 	return prac
 }
 
 func (prac *PractitionerParameters) RevInclude(value string) fhirInterface.IParameters {
-	fmt.Println("\t\t--> RevInclude()")
+	//fmt.Println("\t\t--> RevInclude()")
 	prac.Parameters.RevInclude = value
 	return prac
 }

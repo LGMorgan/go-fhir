@@ -88,7 +88,7 @@ func (f *fhir) GetRaw(uri string, p fhirInterface.UrlParameters) ([]byte, error)
 		RawQuery: values.Encode(),
 	}
 
-	fmt.Println("\t\t\t\t\t", "--> GetRAW:", f.BaseURL+path.String())
+	fmt.Println( /*"\t\t\t\t\t",*/ "--> GetRAW:", f.BaseURL+path.String())
 	req, err := http.NewRequest("GET", f.BaseURL+path.String(), nil)
 	if err != nil {
 		return nil, err

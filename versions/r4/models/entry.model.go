@@ -6,9 +6,10 @@ type Entry struct {
 		Id           string `json:"id"`
 		// Organization fields
 		Address []struct {
-			PostalCode string   `json:"postalCode"`
-			City       string   `json:"city"`
-			Line       []string `json:"line"`
+			PostalCode     string                   `json:"postalCode"`
+			City           string                   `json:"city"`
+			Line           []string                 `json:"line"`
+			UnderscoreLine []map[string]interface{} `json:"_line"`
 		} `json:"address"`
 		Name string `json:"name"`
 		// PractitionerRole fields

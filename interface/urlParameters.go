@@ -32,7 +32,8 @@ func (u UrlParameters) BuildUrlValues() url.Values {
 	}
 	// Support v2 pagination via /_page?id=...
 	if u.Id != "" {
-		values.Add("id", u.Id)
+		// FHIR search uses `_id` for resource ids
+		values.Add("_id", u.Id)
 	}
 	if u.Active {
 		values.Add("active", "true")

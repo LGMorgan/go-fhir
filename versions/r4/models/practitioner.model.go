@@ -1,8 +1,6 @@
 package models_r4
 
 import (
-	"fmt"
-
 	fhirInterface "github.com/LGMorgan/go-fhir/interface"
 	parameters_r4 "github.com/LGMorgan/go-fhir/versions/r4/parameters"
 )
@@ -16,16 +14,17 @@ type Practitioner struct {
 }
 
 func (p *Practitioner) ById(id string) fhirInterface.IParameters {
-	fmt.Printf("\t\t--> ById()\n")
+	//fmt.Printf("\t\t--> ById()\n")
 
 	return &parameters_r4.PractitionerParameters{
-		Client: p.Client,
-		Uri:    "/Practitioner/" + id,
+		Client:     p.Client,
+		Uri:        "/Practitioner",
+		Parameters: fhirInterface.UrlParameters{Id: id},
 	}
 }
 
 func (p *Practitioner) Where(option fhirInterface.UrlParameters) fhirInterface.IParameters {
-	fmt.Printf("\t\t--> Where()\n")
+	//fmt.Printf("\t\t--> Where()\n")
 
 	return &parameters_r4.PractitionerParameters{
 		Client:     p.Client,

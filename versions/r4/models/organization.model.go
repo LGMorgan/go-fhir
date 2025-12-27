@@ -1,8 +1,6 @@
 package models_r4
 
 import (
-	"fmt"
-
 	fhirInterface "github.com/LGMorgan/go-fhir/interface"
 	parameters_r4 "github.com/LGMorgan/go-fhir/versions/r4/parameters"
 )
@@ -14,7 +12,7 @@ type Organization struct {
 }
 
 func (org *Organization) ById(id string) fhirInterface.IParameters {
-	fmt.Printf("\t\t--> ById()\n")
+	//fmt.Printf("\t\t--> ById()\n")
 
 	return &parameters_r4.OrganizationParameters{
 		Client: org.Client,
@@ -23,7 +21,7 @@ func (org *Organization) ById(id string) fhirInterface.IParameters {
 }
 
 func (org *Organization) Where(option fhirInterface.UrlParameters) fhirInterface.IParameters {
-	fmt.Printf("\t\t--> Where()\n")
+	//fmt.Printf("\t\t--> Where()\n")
 
 	return &parameters_r4.OrganizationParameters{
 		Client:     org.Client,

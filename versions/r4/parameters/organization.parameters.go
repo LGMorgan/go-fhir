@@ -1,8 +1,6 @@
 package parameters_r4
 
 import (
-	"fmt"
-
 	fhirInterface "github.com/LGMorgan/go-fhir/interface"
 	"github.com/LGMorgan/go-fhir/versions/r4"
 )
@@ -14,7 +12,7 @@ type OrganizationParameters struct {
 }
 
 func (org *OrganizationParameters) ReturnBundle() fhirInterface.IRequest {
-	fmt.Println("\t\t\t--> ReturnBundle()")
+	//fmt.Println("\t\t\t--> ReturnBundle()")
 	return &r4.Request{
 		Client:       org.Client,
 		Uri:          org.Uri,
@@ -28,7 +26,7 @@ func (org *OrganizationParameters) Return() fhirInterface.IRequest {
 }
 
 func (org *OrganizationParameters) ReturnRaw() fhirInterface.IRequest {
-	fmt.Println("\t\t\t--> ReturnRaw()")
+	//fmt.Println("\t\t\t--> ReturnRaw()")
 	return &r4.Request{
 		Client:       org.Client,
 		Uri:          org.Uri,
@@ -38,19 +36,19 @@ func (org *OrganizationParameters) ReturnRaw() fhirInterface.IRequest {
 }
 
 func (org *OrganizationParameters) And(option fhirInterface.UrlParameters) fhirInterface.IParameters {
-	fmt.Println("\t\t--> And()")
+	//fmt.Println("\t\t--> And()")
 	org.Parameters = org.Parameters.Intersection(option)
 	return org
 }
 
 func (org *OrganizationParameters) Or(option fhirInterface.UrlParameters) fhirInterface.IParameters {
-	fmt.Println("\t\t--> Or()")
+	//fmt.Println("\t\t--> Or()")
 	org.Parameters = org.Parameters.Union(option)
 	return org
 }
 
 func (org *OrganizationParameters) RevInclude(value string) fhirInterface.IParameters {
-	fmt.Println("\t\t--> RevInclude()")
+	//fmt.Println("\t\t--> RevInclude()")
 	org.Parameters.RevInclude = value
 	return org
 }
